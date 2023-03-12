@@ -1,6 +1,7 @@
 package com.agency.View;
 
 import com.agency.Config.Config;
+import com.agency.Database.DataFetcher;
 import com.agency.Helper.Helper;
 import com.agency.Helper.PopupDisplayer;
 import com.agency.Helper.PopupDisplayer.PopupType;
@@ -20,6 +21,7 @@ public class LoginGUI extends JFrame {
     private JButton btn_login;
 
     public LoginGUI() {
+        // Common Actions
         add(wrapper);
 
         setSize(400, 400);
@@ -30,6 +32,8 @@ public class LoginGUI extends JFrame {
 
         setResizable(false);
         setVisible(true);
+        // # Common Actions
+
 
         btn_login.addActionListener(e -> {
             String username = fld_username.getText();
@@ -40,7 +44,7 @@ public class LoginGUI extends JFrame {
                 return;
             }
 
-            User user = User.getFetch(username); // Get the user with this username from the database
+            User user = DataFetcher.fetchUser(username); // Get the user with this username from the database
 
             if (user == null) {
                 PopupDisplayer.display(PopupType.USER_NOT_FOUND);
@@ -54,10 +58,10 @@ public class LoginGUI extends JFrame {
 
             switch (user.getCategory()) {
                 case ADMIN:
-                    // AdminGUI adminGUI = new AdminGUI(user);
-                    System.out.println("I am admin");
+                    AdminGUI adminGUI = new AdminGUI(user);
                     break;
                 case CUSTOMER:
+                    // TODO: Implement CustomerGUI
                     // CustomerGUI custGUI = new CustomerGUI(user);
                     System.out.println("I am customer");
                     break;
