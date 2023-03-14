@@ -1,15 +1,11 @@
 package com.agency.View;
 
-import com.agency.Config.Config;
-import com.agency.Database.DataFetcher;
-import com.agency.Helper.Helper;
+import com.agency.Helper.GUIUtils;
 import com.agency.Helper.PopupDisplayer;
 import com.agency.Helper.PopupDisplayer.PopupType;
 import com.agency.Model.User;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class LoginGUI extends JFrame {
 
@@ -21,19 +17,8 @@ public class LoginGUI extends JFrame {
     private JButton btn_login;
 
     public LoginGUI() {
-        // Common Actions
-        add(wrapper);
-
-        setSize(400, 400);
-        setLocation(Helper.getScreenCenterFor(getSize()));
-
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setTitle(Config.PROJECT_TITLE);
-
+        GUIUtils.defaultBehaviour(this,wrapper,400,400);
         setResizable(false);
-        setVisible(true);
-        // # Common Actions
-
 
         btn_login.addActionListener(e -> {
             String username = fld_username.getText();
@@ -44,7 +29,7 @@ public class LoginGUI extends JFrame {
                 return;
             }
 
-            User user = DataFetcher.fetchUser(username); // Get the user with this username from the database
+            User user = User.fetchUser(username); // Get the user with this username from the database
 
             if (user == null) {
                 PopupDisplayer.display(PopupType.USER_NOT_FOUND);

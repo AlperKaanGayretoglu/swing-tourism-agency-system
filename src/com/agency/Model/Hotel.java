@@ -1,14 +1,15 @@
 package com.agency.Model;
 
 import com.agency.Database.DBConnector;
+import com.agency.Helper.FieldListable;
 
 import java.sql.Date;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Locale;
+import java.util.ArrayList;
+import java.util.List;
 
-public class Hotel {
+public class Hotel implements FieldListable {
     public final int id;
     public final String name;
     public final String city;
@@ -85,16 +86,41 @@ public class Hotel {
         return winterPeriodEnd;
     }
 
-    public static Hotel getFetch(int id) {
-        String query = "SELECT * FROM hotel WHERE id = ?";
+    @Override
+    public Object[] getAllFields() {
+        Object[] allFields = new Object[12];
+        int i = 0;
+        allFields[i++] = getId();
+        allFields[i++] = getName();
+        allFields[i++] = getCity();
+        allFields[i++] = getRegion();
+        allFields[i++] = getAddress();
+        allFields[i++] = getEmail();
+        allFields[i++] = getPhone();
+        allFields[i++] = getStar();
+        allFields[i++] = getSummerPeriodStart();
+        allFields[i++] = getSummerPeriodEnd();
+        allFields[i++] = getWinterPeriodStart();
+        allFields[i++] = getWinterPeriodEnd();
+        return allFields;
+    }
+
+    public static Hotel fetchHotel(int id) {
+        List<Hotel> hotelList = fetchHotels("SELECT * FROM hotel WHERE id = "+id);
+        return hotelList.size()>0 ? hotelList.get(0) : null;
+    }
+
+    public static List<Hotel> fetchHotels() {
+        return fetchHotels("SELECT * FROM hotel");
+    }
+
+    public static List<Hotel> fetchHotels(String query) {
+        List<Hotel> hotelList = new ArrayList<>();
 
         try {
-            PreparedStatement pr = DBConnector.getInstance().prepareStatement(query);
-            pr.setInt(1, id);
-            ResultSet rs = pr.executeQuery();
-
-            if (rs.next()) {
-                return new Hotel(
+            ResultSet rs = DBConnector.getInstance().createStatement().executeQuery(query);
+            while (rs.next()) {
+                hotelList.add(new Hotel(
                         rs.getInt("id"),
                         rs.getString("name"),
                         rs.getString("city"),
@@ -107,12 +133,12 @@ public class Hotel {
                         rs.getDate("summer_period_end"),
                         rs.getDate("winter_period_start"),
                         rs.getDate("winter_period_end")
-                );
+                ));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        return null;
+        return hotelList;
     }
 }

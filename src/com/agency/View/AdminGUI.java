@@ -1,12 +1,12 @@
 package com.agency.View;
 
-import com.agency.Config.Config;
-import com.agency.Database.DataFetcher;
+import com.agency.Helper.DatabaseTableModel;
+import com.agency.Helper.GUIUtils;
 import com.agency.Helper.Helper;
+import com.agency.Model.Hotel;
 import com.agency.Model.User;
 
 import javax.swing.*;
-import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableModel;
 
 public class AdminGUI extends JFrame {
@@ -33,31 +33,29 @@ public class AdminGUI extends JFrame {
     private JTextField fld_sh_user_uname;
     private JComboBox cmb_sh_user_type;
     private JButton btn_user_search;
+    private JScrollPane scrl_hotel_list;
+    private JPanel pnl_hotel_list;
+    private JTable tbl_hotel_list;
+    private JTextField fld_selected_hotel_id;
 
     // User Table:
     private DefaultTableModel mdl_user_list;
-    private Object[] row_user_list;
+    private final Object[] col_user_list = {"ID", "Username", "Password", "Full Name", "Category"};
+
+    // Hotel Table:
+    private DefaultTableModel mdl_hotel_list;
+    Object[] col_hotel_list = {"ID", "Name", "City", "Region", "Address", "Email", "Phone", "Star", "Summer Period Start", "Summer Period End", "Winter Period Start", "Winter Period End"};
 
     private final User admin;
 
     public AdminGUI(User admin) {
         this.admin = admin;
 
-        // Common Actions
-        add(wrapper);
-
-        setSize(1000, 500);
-        setLocation(Helper.getScreenCenterFor(getSize()));
-
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setTitle(Config.PROJECT_TITLE);
-
-        setResizable(false);
-        setVisible(true);
-        // # Common Actions
+        GUIUtils.defaultBehaviour(this,wrapper,1000,500);
 
         initializePage();
-        initializeUsersTab();
+        initializeUserTab();
+        initializeHotelTab();
 
         // TODO: Make Search, Update and Delete possible!
     }
@@ -66,54 +64,27 @@ public class AdminGUI extends JFrame {
         lbl_welcome.setText("Welcome, "+admin.getFullName());
     }
 
-    private void initializeUsersTab() {
-        mdl_user_list = new DefaultTableModel() {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                if (column == 0) { // don't edit the first column (id column)
-                    return false;
-                }
-                return super.isCellEditable(row, column);
-            }
-        };
-        Object[] col_user_list = {"ID", "Username", "Password", "Full Name", "Category"};
-        mdl_user_list.setColumnIdentifiers(col_user_list);
-
-        row_user_list = new Object[col_user_list.length];
-
-        loadUserModel();
-
-        tbl_user_list.setModel(mdl_user_list);
-        tbl_user_list.getTableHeader().setReorderingAllowed(false);
-
-        tbl_user_list.getSelectionModel().addListSelectionListener(e -> {
-            try {
-                String select_user_id = tbl_user_list.getValueAt(tbl_user_list.getSelectedRow(), 0).toString();
-                fld_selected_user_id.setText(select_user_id);
-            } catch (Exception exception) {
-                // TODO: Find a way to deal with this Exception
-            }
-        });
+    private void initializeUserTab() {
+        mdl_user_list = new DatabaseTableModel();
+        GUIUtils.initializeTab(User.fetchUsers(),mdl_user_list,tbl_user_list,col_user_list,fld_selected_user_id);
     }
 
     public void loadUserModel() {
-        DefaultTableModel clearModel = (DefaultTableModel) tbl_user_list.getModel();
-        clearModel.setRowCount(0); // clear the table
-        int i = 0;
-        for (User obj : DataFetcher.fetchUsers()) { // update the table
-            i = 0;
-            row_user_list[i++] = obj.getId();
-            row_user_list[i++] = obj.getUsername();
-            row_user_list[i++] = obj.getPassword();
-            row_user_list[i++] = obj.getFullName();
-            row_user_list[i++] = obj.getCategory();
-            mdl_user_list.addRow(row_user_list);
-        }
+        GUIUtils.loadModel(tbl_user_list,mdl_user_list,User.fetchUsers());
+    }
+
+    private void initializeHotelTab() {
+        mdl_hotel_list = new DatabaseTableModel();
+        GUIUtils.initializeTab(Hotel.fetchHotels(),mdl_hotel_list,tbl_hotel_list,col_hotel_list,fld_selected_hotel_id);
+    }
+
+    public void loadHotelModel() {
+        GUIUtils.loadModel(tbl_hotel_list,mdl_hotel_list,Hotel.fetchHotels());
     }
 
     // TODO: Delete this main!
     public static void main(String[] args) {
         Helper.setLayout();
-        AdminGUI adminGUI = new AdminGUI(DataFetcher.fetchUser("admin"));
+        AdminGUI adminGUI = new AdminGUI(User.fetchUser("admin"));
     }
 }
