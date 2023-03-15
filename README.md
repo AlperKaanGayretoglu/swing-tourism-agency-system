@@ -1,3 +1,4 @@
 # Tourism Agency System
 
-    This project is made by using Java Swift and MySQL.
+- This project is being made by using Java Swing and MySQL.
+- Project Status: Ongoing...
